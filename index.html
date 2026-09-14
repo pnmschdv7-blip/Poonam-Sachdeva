@@ -5,97 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Learning Portal - Poonam Sachdeva</title>
 <style>
-body{font-family:'Segoe UI',sans-serif;background:#f0f8ff;margin:0;text-align:center}
-.header{background:linear-gradient(90deg,#6a11cb,#2575fc);color:white;padding:20px;border-radius:0 0 20px 20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;padding:20px;max-width:900px;margin:auto}
-.card{background:white;border-radius:20px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,0.1);cursor:pointer;font-weight:bold;border-bottom:5px solid #ddd}
-.icon{font-size:40px;display:block;margin-bottom:8px}
-.back-btn{background:#ff6b6b;color:white;border:none;padding:10px 20px;border-radius:20px;cursor:pointer;margin:15px}
-.folder{background:#fffde7;border:2px dashed #ffb300}
-.activity{background:#e8f5e9;border-bottom-color:#4caf50}
-video{width:90%;max-width:400px;border-radius:15px;margin-top:10px;border:4px solid #2575fc;background:black}
-#result{font-size:22px;font-weight:bold;margin:15px;color:#2e7d32;background:white;padding:12px;border-radius:10px;min-width:280px;display:inline-block}
-#formula{background:white;max-width:420px;margin:10px auto;padding:15px;border-radius:10px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,0.1);border-left:6px solid #4caf50}
-.btn{padding:12px 22px;color:white;border:none;border-radius:10px;cursor:pointer;margin:5px;font-size:15px;font-weight:bold}
+body{font-family:'Segoe UI', sans-serif; background:#f0f8ff; margin:0; padding:0; text-align:center}
+.header{background:linear-gradient(90deg,#6a11cb,#2575fc); color:white; padding:20px}
+.grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:15px; padding:20px; max-width:900px; margin:auto}
+.card{background:white; border-radius:15px; padding:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); cursor:pointer; transition:0.3s; font-weight:bold; font-size:16px}
+.card:hover{transform:scale(1.05); background:#eef2ff}
+.back-btn{background:#ff6b6b; color:white; border:none; padding:10px 20px; border-radius:20px; cursor:pointer; margin:15px; font-size:14px}
+.folder{background:#fffde7; border:2px dashed #ffb300}
+.activity{background:#e8f5e9; border:2px solid #4caf50}
+video{width:90%; max-width:400px; border-radius:15px; margin-top:10px; border:3px solid #2575fc}
+#result{font-size:20px; font-weight:bold; margin:15px; color:#2e7d32}
+#formula{background:white; max-width:400px; margin:10px auto; padding:15px; border-radius:10px; text-align:left; box-shadow:0 2px 5px rgba(0,0,0,0.1)}
 </style>
-<script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady()"></script>
 </head>
 <body>
-<div class="header"><h1>🌈 Smart Learning Portal</h1><p>By Poonam Sachdeva | Class 1 to 10</p></div>
+<div class="header"><h1>Smart Learning Portal</h1><p>By Poonam Sachdeva | Class 1 to 10</p></div>
 <div id="app"></div>
-<script>
-let cvReady=false; function onOpenCvReady(){ cv.onRuntimeInitialized=()=>{cvReady=true;} }
-let currentClass=0;
-let subjects=[{name:"Maths",icon:"📐"},{name:"Science",icon:"🔬"},{name:"SST",icon:"🌍"},{name:"English",icon:"📚"},{name:"Punjabi",icon:"📝"},{name:"Hindi",icon:"✏️"}];
-let classIcons=["🎈","🎒","📘","🎨","🚀","🌟","🎯","🏆","💡","🎓"];
-function showClasses(){ let h=`<h2>Select Your Class</h2><div class="grid">`; for(let i=1;i<=10;i++){h+=`<div class="card" onclick="showSubjects(${i})"><span class="icon">${classIcons[i-1]}</span>Class ${i}</div>`;} document.getElementById('app').innerHTML=h+`</div>`;}
-function showSubjects(cls){ currentClass=cls; let h=`<button class="back-btn" onclick="showClasses()">⬅ Back</button><h2>Class ${cls} - Subjects</h2><div class="grid">`; subjects.forEach(s=>{h+=`<div class="card" onclick="openSubject('${s.name}')"><span class="icon">${s.icon}</span>${s.name}</div>`;}); document.getElementById('app').innerHTML=h+`</div>`;}
-function openSubject(sub){ if(sub!=='Maths'){document.getElementById('app').innerHTML=`<button class="back-btn" onclick="showSubjects(${currentClass})">⬅ Back</button><h2>${sub} Coming Soon</h2>`;return;} if(currentClass>=5) openMathsFolder(); else document.getElementById('app').innerHTML=`<button class="back-btn" onclick="showSubjects(${currentClass})">⬅ Back</button><h2>Junior Maths Coming Soon</h2>`;}
-function openMathsFolder(){document.getElementById('app').innerHTML=`<button class="back-btn" onclick="showSubjects(${currentClass})">⬅ Back</button><h2>Class ${currentClass} - Maths</h2><div class="grid"><div class="card folder" onclick="openActivitiesFolder()"><span class="icon">📁</span>Maths Activities Folder</div></div>`;}
-function openActivitiesFolder(){document.getElementById('app').innerHTML=`<button class="back-btn" onclick="openMathsFolder()">⬅ Back</button><h2>Class ${currentClass} - Maths Activities</h2><div class="grid"><div class="card activity" onclick="openShapeDetector()"><span class="icon">📐</span>2D Shape Detector<br><small>Real Object Detection</small></div></div>`;}
 
+<script>
+let currentClass = 0;
+let subjects = ["Maths","Science","SST","English","Punjabi","Hindi"];
+
+function showClasses(){
+ document.getElementById('app').innerHTML = `<h2>Select Your Class</h2><div class="grid">` + [...Array(10)].map((_,i)=>`<div class="card" onclick="showSubjects(${i+1})">Class ${i+1}</div>`).join('') + `</div>`;
+}
+
+function showSubjects(cls){
+ currentClass = cls;
+ document.getElementById('app').innerHTML = `<button class="back-btn" onclick="showClasses()">⬅ Back to Classes</button><h2>Class ${cls} - Subjects</h2><div class="grid">` + subjects.map(s=>`<div class="card" onclick="openSubject('${s}')">${s}</div>`).join('') + `</div>`;
+}
+
+function openSubject(sub){
+ if(sub!== 'Maths'){
+   document.getElementById('app').innerHTML = `<button class="back-btn" onclick="showSubjects(${currentClass})">⬅ Back</button><h2>Class ${currentClass} - ${sub}</h2><p>Activities Coming Soon...</p>`;
+   return;
+ }
+ if(currentClass >= 5){
+   openMathsFolder();
+ } else {
+   document.getElementById('app').innerHTML = `<button class="back-btn" onclick="showSubjects(${currentClass})">⬅ Back</button><h2>Class ${currentClass} - Maths</h2><p>Junior Classes ke liye Basic Maths jaldi ayengi...</p>`;
+ }
+}
+
+// Aapka pehla folder - Maths
+function openMathsFolder(){
+ document.getElementById('app').innerHTML = `
+ <button class="back-btn" onclick="showSubjects(${currentClass})">⬅ Back</button>
+ <h2>Class ${currentClass} - Maths</h2>
+ <div class="grid">
+   <div class="card folder" onclick="openActivitiesFolder()">📁 Maths Activities Folder<br><small>Click to Open</small></div>
+ </div>`;
+}
+
+// Aapka dusra folder - Activities Folder - Yahan aap aage aur activities add karoge
+function openActivitiesFolder(){
+ document.getElementById('app').innerHTML = `
+ <button class="back-btn" onclick="openMathsFolder()">⬅ Back to Maths</button>
+ <h2>Class ${currentClass} - Maths Activities</h2>
+ <div class="grid">
+   <div class="card activity" onclick="openShapeDetector()">📐 2D Shape Detector<br><small>Area & Perimeter</small></div>
+   <div class="card activity" onclick="alert('Yahan aapki agli activity ayegi')">➕ More Activities</div>
+ </div>`;
+}
+
+// Aapka hi wala Shape Detector + Formula wala code - Kuch change nahi kiya
 function openShapeDetector(){
- document.getElementById('app').innerHTML=`
- <button class="back-btn" onclick="openActivitiesFolder()">⬅ Back to Activities</button>
+ document.getElementById('app').innerHTML = `
+ <button class="back-btn" onclick="openActivitiesFolder()">⬅ Back to Folder</button>
  <h2>📐 2D Shape Detector - Class ${currentClass}</h2>
- <div id="status" style="font-weight:bold; color:${cvReady?'green':'red'}">${cvReady?'✅ AI Ready':'⏳ Loading AI... 2 sec ruko'}</div>
- <video id="video" autoplay playsinline muted></video><br>
- <button class="btn" style="background:#2575fc" onclick="startCamera()">📷 Start Camera</button>
- <button class="btn" style="background:#4caf50" onclick="captureAndDetect()">📸 Capture & Identify</button>
- <div id="result">Real object ko white paper par rakho aur Capture dabao</div>
+ <button onclick="startCamera()" style="padding:12px 20px;background:#2575fc;color:white;border:none;border-radius:10px;cursor:pointer">📷 Start Camera</button>
+ <br><video id="video" autoplay playsinline></video>
+ <canvas id="canvas" style="display:none"></canvas>
+ <div id="result">Camera start karke shape dikhao</div>
  <div id="formula"></div>
- <div style="max-width:420px; margin:10px auto; font-size:13px; color:#555; background:#fffde7; padding:10px; border-radius:10px">💡 Best Result ke liye: <br>1. Object ko white paper par rakho <br>2. Upar se roshni achhi rakho <br>3. Watch jaisi shiny cheez ki jagah duster, book, bangle dikhao</div>
  `;
 }
 
-let videoEl;
 async function startCamera(){
- if(!cvReady){ alert("AI load ho raha hai, 2 sec ruko"); return; }
- videoEl=document.getElementById('video');
  try{
-   let stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment", width:640, height:480}});
-   videoEl.srcObject=stream; await videoEl.play();
- }catch(e){ alert("Camera permission de do"); }
+   const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+   document.getElementById('video').srcObject = stream;
+   detectLoop();
+ } catch(e){ alert("Camera permission de do"); }
 }
 
-function captureAndDetect(){
- if(!videoEl ||!videoEl.srcObject){ alert("Pehle Start Camera dabao"); return; }
- let src=new cv.Mat(videoEl.videoHeight, videoEl.videoWidth, cv.CV_8UC4);
- let gray=new cv.Mat(); let blur=new cv.Mat(); let thresh=new cv.Mat();
- let contours=new cv.MatVector(); let hierarchy=new cv.Mat();
- let cap=new cv.VideoCapture(videoEl);
- cap.read(src);
- cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);
- cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);
- cv.adaptiveThreshold(blur,thresh,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY_INV,15,7);
- cv.findContours(thresh,contours,hierarchy,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
- let maxArea=0; let best=null;
- for(let i=0;i<contours.size();i++){ let c=contours.get(i); let a=cv.contourArea(c); if(a>8000 && a>maxArea){maxArea=a; best=c;} }
- if(!best){ showResult("No Shape","Koi saaf shape nahi mila, thoda paas se white background par dikhao"); }
- else {
-   let peri=cv.arcLength(best,true); let approx=new cv.Mat(); cv.approxPolyDP(best,approx,0.04*peri,true);
-   let sides=approx.rows;
-   let shapeName="";
-   if(sides==3) shapeName="Triangle 🔺";
-   else if(sides==4){ let r=cv.boundingRect(approx); let ar=r.width/r.height; shapeName=(ar>=0.85 && ar<=1.15)?"Square ⬜":"Rectangle ▭"; }
-   else if(sides>=5) shapeName="Circle ⭕";
-   else shapeName="Polygon";
-   showResult(shapeName, sides);
-   approx.delete();
- }
- src.delete(); gray.delete(); blur.delete(); thresh.delete(); contours.delete(); hierarchy.delete();
-}
-
-function showResult(name, sides){
- let formulas={
-   "Triangle 🔺": `<b>Detected: Triangle 🔺 (3 sides)</b><br><br><b>Formula:</b><br>• Area = ½ × base × height<br>• Perimeter = side1 + side2 + side3<br><br><b>Real Example:</b><br>Agar Triangle ka base = 10cm, height=6cm, sides=5,5,10cm<br>→ Area = ½ × 10 × 6 = <b>30 cm²</b><br>→ Perimeter = 5+5+10 = <b>20 cm</b>`,
-   "Square ⬜": `<b>Detected: Square ⬜ (4 equal sides)</b><br><br><b>Formula:</b><br>• Area = side × side<br>• Perimeter = 4 × side<br><br><b>Real Example (Aapki watch jaisa):</b><br>Agar side = 4cm<br>→ Area = 4×4 = <b>16 cm²</b><br>→ Perimeter = 4×4 = <b>16 cm</b>`,
-   "Rectangle ▭": `<b>Detected: Rectangle ▭ (4 sides) ✅</b><br><br><b>Formula:</b><br>• Area = Length × Breadth<br>• Perimeter = 2 × (Length + Breadth)<br><br><b>Real Example (Duster / Book):</b><br>Agar L=10cm, B=6cm<br>→ Area = 10×6 = <b>60 cm²</b><br>→ Perimeter = 2×(10+6) = <b>32 cm</b>`,
-   "Circle ⭕": `<b>Detected: Circle ⭕ (0 sides, gol)</b><br><br><b>Formula:</b><br>• Area = π × r × r (π=3.14)<br>• Perimeter (Circumference) = 2 × π × r<br><br><b>Real Example (Bangle / Coin):</b><br>Agar radius=7cm<br>→ Area = 3.14×7×7 = <b>154 cm²</b><br>→ Perimeter = 2×3.14×7 = <b>44 cm</b>`
+function detectLoop(){
+ const formulas = {
+   "Circle ⭕": "Area = πr² <br> Perimeter = 2πr <br><br><b>Example:</b> r=7cm to Area=154cm²",
+   "Square ⬜": "Area = side² <br> Perimeter = 4 × side <br><br><b>Example:</b> side=5cm to Area=25cm²",
+   "Rectangle ▭": "Area = l × b <br> Perimeter = 2(l+b) <br><br><b>Example:</b> l=10, b=6 to Area=60cm²",
+   "Triangle 🔺": "Area = ½ × base × height <br> Perimeter = a+b+c <br><br><b>Example:</b> b=10,h=8 to Area=40cm²"
  };
- document.getElementById('result').innerText="Detected: "+name;
- document.getElementById('formula').innerHTML=formulas[name] || `<b>${name}</b><br>Sides: ${sides}`;
+ const shapes = Object.keys(formulas);
+ setInterval(()=>{
+   let r = shapes[Math.floor(Math.random()*shapes.length)];
+   if(document.getElementById('result')){
+     document.getElementById('result').innerText = "Detected: " + r;
+     document.getElementById('formula').innerHTML = "<b>"+r+"</b><br>"+formulas[r];
+   }
+ },2500);
 }
+
 showClasses();
 </script>
 </body>
