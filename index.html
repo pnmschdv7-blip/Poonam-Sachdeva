@@ -1,30 +1,110 @@
 <!DOCTYPE html>
-<html>
-<head><title>Final Project</title>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Learning Portal - Poonam Sachdeva</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
 <style>
-body{text-align:center; font-family:Arial;}
-#webcam-container canvas{border:5px solid black; border-radius:10px;}
-#formula{background:#ffff99; border:3px solid black; padding:15px; margin:15px auto; width:90%; max-width:500px; font-size:20px; font-weight:bold;}
+body{font-family:'Segoe UI', sans-serif; background:#f0f8ff; margin:0; padding:0; text-align:center}
+.header{background:linear-gradient(135deg,#6a11cb 0%,#2575fc 100%); color:white; padding:25px; border-radius:0 0 30px 30px; box-shadow:0 5px 15px rgba(0,0,0,0.2)}
+.header h1{margin:0; font-size:26px}
+.grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:18px; padding:20px; max-width:900px; margin:auto}
+.card{background:white; border-radius:25px; padding:22px 15px; box-shadow:0 6px 20px rgba(0,0,0,0.1); cursor:pointer; transition:0.3s; font-weight:bold; font-size:17px; border-bottom:6px solid #ddd}
+.card:hover{transform:translateY(-8px) scale(1.02); box-shadow:0 10px 25px rgba(0,0,0,0.15)}
+.icon{font-size:45px; display:block; margin-bottom:10px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));}
+.back-btn{background:#ff6b6b; color:white; border:none; padding:10px 20px; border-radius:20px; cursor:pointer; margin:15px; font-size:14px; font-weight:bold}
+.folder{background:#fffde7; border:2px dashed #ffb300; border-bottom:6px solid #ffb300}
+.activity{background:#e8f5e9; border-bottom-color:#4caf50}
+.coming{background:#fce4ec; border-bottom-color:#e91e63; color:#880e4f}
+#webcam-container canvas{border:5px solid #2575fc; border-radius:15px; width:90%; max-width:350px; margin-top:10px}
+#formula{ background:#ffff99; border:3px solid black; padding:15px; margin:15px auto; width:90%; max-width:500px; font-size:19px; font-weight:bold; border-radius:10px; text-align:left}
 #label{font-size:22px; color:blue; font-weight:bold; margin:10px;}
-button{padding:12px 20px; background:green; color:white; font-size:16px; border:none; border-radius:6px;}
+.btn{padding:12px 22px; background:green; color:white; font-size:16px; border:none; border-radius:8px; cursor:pointer; font-weight:bold}
 </style>
 </head>
 <body>
-<h2>Shape Detector</h2>
-<button onclick="init()">Start Camera</button>
-<div id="webcam-container"></div>
-<div id="label"></div>
-<div id="formula">Start dabao fir shape dikhao</div>
+<div class="header"><h1>🌈 Smart Learning Portal</h1><p>By Poonam Sachdeva | Class 1 to 10 | Attractive Learning</p></div>
+<div id="app"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
 <script>
+let currentClass = 0;
+let subjects = [
+  {name:"Maths", icon:"🧮", color:"#ff6b6b"},
+  {name:"Science", icon:"🔬", color:"#4dabf7"},
+  {name:"SST", icon:"🌍", color:"#51cf66"},
+  {name:"English", icon:"📚", color:"#ffa94d"},
+  {name:"Punjabi", icon:"📝", color:"#cc5de8"},
+  {name:"Hindi", icon:"✏️", color:"#f06595"}
+];
+let classIcons = ["🌈","🎒","📘","🎨","🚀","🌟","🎯","🏆","💡","🎓"];
+
+function showClasses(){
+ let html = `<h2>✨ Select Your Class ✨</h2><div class="grid">`;
+ for(let i=1; i<=10; i++){
+   let color = `hsl(${i*28}, 85%, 65%)`;
+   html += `<div class="card" style="border-bottom-color:${color}" onclick="showSubjects(${i})"><span class="icon">${classIcons[i-1]}</span>Class ${i}</div>`;
+ }
+ html+=`</div>`;
+ document.getElementById('app').innerHTML = html;
+}
+
+function showSubjects(cls){
+ currentClass = cls;
+ let html = `<button class="back-btn" onclick="showClasses()">⬅ Back to Classes</button><h2>Class ${cls} - Subjects 📖</h2><div class="grid">`;
+ subjects.forEach(s=>{
+   html += `<div class="card" style="border-bottom-color:${s.color}" onclick="openSubject('${s.name}')"><span class="icon">${s.icon}</span>${s.name}</div>`;
+ });
+ html+=`</div>`;
+ document.getElementById('app').innerHTML = html;
+}
+
+function openSubject(sub){
+ // Class 1-4 ke liye sab Coming Soon
+ if(currentClass < 5){
+   document.getElementById('app').innerHTML = `<button class="back-btn" onclick="showSubjects(${currentClass})">⬅ Back</button><h2>Class ${currentClass} - ${sub}</h2><div class="grid"><div class="card coming"><span class="icon">⏳</span>Coming Soon<br><small>For Junior Classes</small></div></div>`;
+   return;
+ }
+ // Class 5-10 ke liye Activities Folder khulega
+ openActivitiesFolder(sub);
+}
+
+function openActivitiesFolder(subjectName){
+ document.getElementById('app').innerHTML = `
+ <button class="back-btn" onclick="showSubjects(${currentClass})">⬅ Back to Subjects</button>
+ <h2>Class ${currentClass} - ${subjectName} - Activities 📁</h2>
+ <div class="grid">
+   ${subjectName === 'Maths'?
+     `<div class="card activity" onclick="openShapeDetector()"><span class="icon">📐</span>2D Shape Detector<br><small>Real Shape + Formula</small></div>`
+     :
+     `<div class="card coming"><span class="icon">🚧</span>${subjectName} Activities<br><small>Coming Soon</small></div>`
+   }
+   <div class="card folder"><span class="icon">➕</span>More Activities<br><small>Coming Soon</small></div>
+ </div>`;
+}
+
+function openShapeDetector(){
+ document.getElementById('app').innerHTML = `
+ <button class="back-btn" onclick="openActivitiesFolder('Maths')">⬅ Back to Activities</button>
+ <h2>📐 2D Shape Detector - Class ${currentClass}</h2>
+ <button class="btn" onclick="init()">📷 Start Camera</button>
+ <div id="webcam-container"></div>
+ <div id="label"></div>
+ <div id="formula">Start dabao fir shape dikhao</div>
+ <p style="font-size:13px; color:#666; max-width:500px; margin:10px auto">💡 White paper par black shape banao, 75% se upar aate hi formula aa jayega</p>
+ `;
+}
+
 const URL = "https://teachablemachine.withgoogle.com/models/bFbw77Ikk/";
 let model, webcam;
 async function init(){
+  document.getElementById("label").innerHTML = "Model Loading... ⏳";
   model = await tmImage.load(URL+"model.json", URL+"metadata.json");
   webcam = new tmImage.Webcam(350,350,true);
-  await webcam.setup(); await webcam.play();
+  await webcam.setup();
+  await webcam.play();
+  document.getElementById("webcam-container").innerHTML = "";
   document.getElementById("webcam-container").appendChild(webcam.canvas);
   loop();
 }
@@ -33,26 +113,23 @@ async function loop(){
   const prediction = await model.predict(webcam.canvas);
   let best = prediction[0];
   for(let p of prediction) if(p.probability > best.probability) best = p;
-
   let per = (best.probability*100).toFixed(0);
   document.getElementById("label").innerHTML = best.className.toUpperCase()+" : "+per+"%";
-
   let f = document.getElementById("formula");
   let s = best.className.toLowerCase();
-
   if(best.probability > 0.75){
-    if(s.includes("circle")) f.innerHTML = "✅ CIRCLE DETECTED<br><br>Area = π × r × r<br>Perimeter = 2 × π × r";
-    else if(s.includes("square")) f.innerHTML = "✅ SQUARE DETECTED<br><br>Area = Side × Side<br>Perimeter = 4 × Side";
-    else if(s.includes("rect")) f.innerHTML = "✅ RECTANGLE DETECTED<br><br>Area = Length × Breadth<br>Perimeter = 2×(L+B)";
-    else if(s.includes("tri")) f.innerHTML = "✅ TRIANGLE DETECTED<br><br>Area = ½ × Base × Height<br>Perimeter = S1+S2+S3";
+    if(s.includes("circle")) f.innerHTML = "✅ CIRCLE DETECTED ⭕<br><br>Area = π × r × r<br>Perimeter = 2 × π × r<br><br>Ex: r=7cm => Area=154cm²";
+    else if(s.includes("square")) f.innerHTML = "✅ SQUARE DETECTED ⬜<br><br>Area = Side × Side<br>Perimeter = 4 × Side<br><br>Ex: Side=5cm => Area=25cm²";
+    else if(s.includes("rect")) f.innerHTML = "✅ RECTANGLE DETECTED ▭<br><br>Area = L × B<br>Perimeter = 2×(L+B)<br><br>Ex: L=10,B=6 => Area=60cm²";
+    else if(s.includes("tri")) f.innerHTML = "✅ TRIANGLE DETECTED 🔺<br><br>Area = ½ × B × H<br>Perimeter = S1+S2+S3<br><br>Ex: B=10,H=8 => Area=40cm²";
     else f.innerHTML = "⚠️ NO 2D SHAPE";
   } else {
-    f.innerHTML = "Shape ko camera ke paas lao...";
+    f.innerHTML = "Shape ko camera ke paas lao... "+per+"%";
   }
   requestAnimationFrame(loop);
 }
+
+showClasses();
 </script>
 </body>
 </html>
-
-
