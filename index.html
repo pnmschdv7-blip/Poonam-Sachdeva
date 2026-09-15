@@ -61,12 +61,10 @@ function showSubjects(cls){
 }
 
 function openSubject(sub){
- // Class 1-4 ke liye sab Coming Soon
  if(currentClass < 5){
    document.getElementById('app').innerHTML = `<button class="back-btn" onclick="showSubjects(${currentClass})">⬅ Back</button><h2>Class ${currentClass} - ${sub}</h2><div class="grid"><div class="card coming"><span class="icon">⏳</span>Coming Soon<br><small>For Junior Classes</small></div></div>`;
    return;
  }
- // Class 5-10 ke liye Activities Folder khulega
  openActivitiesFolder(sub);
 }
 
@@ -91,8 +89,8 @@ function openShapeDetector(){
  <button class="btn" onclick="init()">📷 Start Camera</button>
  <div id="webcam-container"></div>
  <div id="label"></div>
- <div id="formula">Start dabao fir shape dikhao</div>
- <p style="font-size:13px; color:#666; max-width:500px; margin:10px auto">💡 White paper par black shape banao, 75% se upar aate hi formula aa jayega</p>
+ <div id="formula">Press Start and then show the shape in front of camera</div>
+ <p style="font-size:13px; color:#666; max-width:500px; margin:10px auto">💡 Tip: Draw a black shape on white paper. The formula will appear when confidence is above 75%.</p>
  `;
 }
 
@@ -122,9 +120,9 @@ async function loop(){
     else if(s.includes("square")) f.innerHTML = "✅ SQUARE DETECTED ⬜<br><br>Area = Side × Side<br>Perimeter = 4 × Side<br><br>Ex: Side=5cm => Area=25cm²";
     else if(s.includes("rect")) f.innerHTML = "✅ RECTANGLE DETECTED ▭<br><br>Area = L × B<br>Perimeter = 2×(L+B)<br><br>Ex: L=10,B=6 => Area=60cm²";
     else if(s.includes("tri")) f.innerHTML = "✅ TRIANGLE DETECTED 🔺<br><br>Area = ½ × B × H<br>Perimeter = S1+S2+S3<br><br>Ex: B=10,H=8 => Area=40cm²";
-    else f.innerHTML = "⚠️ NO 2D SHAPE";
+    else f.innerHTML = "⚠️ NO 2D SHAPE DETECTED";
   } else {
-    f.innerHTML = "Shape ko camera ke paas lao... "+per+"%";
+    f.innerHTML = "Bring the shape closer to the camera... "+per+"%";
   }
   requestAnimationFrame(loop);
 }
